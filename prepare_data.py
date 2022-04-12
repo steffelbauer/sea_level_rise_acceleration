@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
-import xarryay as xr
+import xarray as xr
 from typing import Union
 
 # set datapath variable to folder where the raw data is stored
