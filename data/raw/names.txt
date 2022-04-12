@@ -1,0 +1,9 @@
+ID	Name
+7	Cuxhaven
+9	Maassluis
+20	Vlissingen
+22	Hoek van Holland
+23	Den Helder
+24	Delfzijl
+25	Harlingen
+32	IJmuiden
