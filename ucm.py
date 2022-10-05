@@ -96,7 +96,7 @@ if __name__ == '__main__':
         x['height'] = x['height'] - x['height'].mean()
 
         # different options:
-        x['height'] = x['height'] + nodal
+        x['height'] = x['height'] - nodal
     
         # fit unobserved components model (UCM)
         model = statsmodels.tsa.statespace.structural.UnobservedComponents(x['height'], **ucm_kwargs)
