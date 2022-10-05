@@ -5,7 +5,10 @@ import numpy as np
 import statsmodels
 import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
+import matplotlib.pyplot as plt
+import seaborn as sns
 
+sns.set_style('whitegrid')
 
 def standardize(x: pd.DataFrame) -> pd.DataFrame:
     """Standardize data by subtracting the mean and dividing by the standard deviation
@@ -23,7 +26,6 @@ def standardize(x: pd.DataFrame) -> pd.DataFrame:
 if __name__ == '__main__':
 
     # Input parameters:
-    method = 'nodal_prescribed'  # ['ucm', 'nodal_prescribed', 'nodal_phase']
     first = '1919-01-01'  # start time
     station_ids = [20, 9, 22, 32, 23, 25, 24, 7]  # ids of chosen stations
 
@@ -59,7 +61,6 @@ if __name__ == '__main__':
         print("\n\nStation = ", names[meas])
         
         # read station from csv file
-        # data = pd.read_pickle(os.path.join('data', 'der',  'stations', f'{meas}.pd'))
         data = pd.read_csv(os.path.join('data', 'der',  'stations', f'{meas}.csv'), index_col=0, parse_dates=[0])
         data.index.freq = 'MS'
         x = data
@@ -95,31 +96,16 @@ if __name__ == '__main__':
         x['height'] = x['height'] - x['height'].mean()
 
         # different options:
-        if method == 'nodal_prescribed':
-             x['height'] = x['height'] + nodal
-        elif method == 'nodal_phase':
-            x['nodal'] = standardize(nodal)
-            ucm_kwargs['exog'] = x[['u_s', 'v_s', 'pres', 'nodal']]
-        elif method == 'ucm':
-            ucm_kwargs['freq_seasonal'] = [{'period': nodal_cycle * 12, 'harmonics': 1}]
-            ucm_kwargs['stochastic_freq_seasonal'] = [False]
-        else:
-            raise Exception('Variable model unknown')
-
+        x['height'] = x['height'] + nodal
+    
         # fit unobserved components model (UCM)
         model = statsmodels.tsa.statespace.structural.UnobservedComponents(x['height'], **ucm_kwargs)
         res = model.fit(disp = 0)
         print(res.summary())
 
         # Output nodal amplitudes
-        if method == 'nodal_prescribed':
-            comp_ampl = ampl
-        elif method == 'nodal_phase':
-            comp_ampl = res.params['beta.nodal']
-        elif method == 'ucm':
-            freq = pd.Series(index = x.index, data = res.freq_seasonal[0].smoothed, name = meas)
-            comp_ampl = freq.abs().max()
-
+        comp_ampl = ampl
+        
         # Extract level from UCM
         level = pd.Series(index = x.index, data = res.level.smoothed, name = meas)
         result[meas] = level
@@ -127,5 +113,9 @@ if __name__ == '__main__':
 
     # Save results to pandas pickle and csv file:
     result = pd.DataFrame(result)
-    result.to_pickle(os.path.join('data', 'der', 'ucm', f'level_{method}.pd'))
-    result.to_csv(os.path.join('data', 'der', 'ucm', f'level_{method}.csv'))
+    # result.to_pickle(os.path.join('data', 'der', 'ucm', f'level_{method}.pd'))
+    # result.to_csv(os.path.join('data', 'der', 'ucm', f'level_{method}.csv'))
+    result.to_csv(os.path.join('data', 'der', 'ucm', f'level.csv'))
+
+    (pd.DataFrame([result[col]+150*i for i, col in enumerate(result.columns)]).T).plot()
+    plt.show()
