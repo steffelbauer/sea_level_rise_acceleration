@@ -4,6 +4,7 @@ import pandas as pd
 import xarray as xr
 from typing import Union
 
+
 # set datapath variable to folder where the raw data is stored
 datapath = os.path.join('data', 'raw')
 
@@ -18,17 +19,26 @@ ds_v_past = xr.open_dataset(os.path.join(datapath, 'past', 'vwnd.10m.mon.mean.nc
 ds_p_past = xr.open_dataset(os.path.join(datapath, 'past', 'pres.sfc.mon.mean_v3.nc'))['pres']
 
 
-def combine_series(present: pd.DataFrame, past: pd.DataFrame) -> Union[pd.DataFrame, pd.Series]:
+def combine_series(present: pd.DataFrame, past: pd.DataFrame, correction: bool=False) -> Union[pd.DataFrame, pd.Series]:
     """Combine two pandas dataframes or series into one by appending one to the other
 
     Args:
         present (pd.DataFrame): dataframe containing data from the PSL Gridded Dataset
         past (pd.DataFrame): dataframe containing data from the 20th Century Reanalysis (V3) project
+        correction (bool): if True then the offset in data is corrected for the different datasets taking the overlap into account (necessary for pressure)
 
     Returns:
         Union[pd.DataFrame, pd.Series]: comnined dataframe 
     """
     inter = present.index.intersection(past.index)
+    print(inter)
+    
+    if correction:
+        delta = (present[inter].mean() - past[inter].mean())
+
+        print(past[inter].mean(), present[inter].mean(), delta)
+        present = present - delta
+
     result = pd.concat([past[:inter[0]], present[inter[1]:]])
     
     return result
@@ -81,7 +91,7 @@ if __name__ == '__main__':
         v2 = ds_v_past.interp(lat = lat, lon = lon).to_dataframe()['vwnd']
 
         # combine data past and present datasets
-        p = combine_series(p1, p2)
+        p = combine_series(p1, p2, correction=True)
         u = combine_series(u1, u2)
         v = combine_series(v1, v2)
 
