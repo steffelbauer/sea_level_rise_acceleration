@@ -10,7 +10,6 @@ if __name__ == "__main__":
     
     # Initial paramters
     method = 'pwlf'  # string for generating name for output files (pwlf - pice-wise linear function)
-    ts_model = 'nodal_prescribed'  # 'ucm', 'nodal_prescribed', 'nodal_phase'
     niter = 10000  # number of iterations of MCMC process
     station_ids = [7, 9, 20, 22, 23, 24, 25, 32]  # ids of stations that are used in the analysis
     
@@ -27,7 +26,7 @@ if __name__ == "__main__":
         endyear = '2018'
 
     # filename and path of the input file (output of unobserved components model) 
-    filename = os.path.join('data', 'der', 'ucm', f'level_{ts_model}.csv')
+    filename = os.path.join('data', 'der', 'ucm', f'level.csv')
     
     # read input file
     all = pd.read_csv(filename, index_col = 0, parse_dates = True)
@@ -95,7 +94,7 @@ if __name__ == "__main__":
     df['breakpoint'] = [data.index[t] for t in df.tau]
     
     # Save MCMC results to pickle file
-    df.to_pickle(os.path.join(f'data/der/breakpoint_{ts_model}',  f'breakpoint_{method}_{ts_model}_{startyear}_{endyear}.pd'))
+    df.to_pickle(os.path.join(f'data/der/breakpoint',  f'breakpoint_{method}_{startyear}_{endyear}.pd'))
 
     # Print results to console
     slopes = df[df.columns[[x.startswith('k') for x in df.columns]]] * 12
