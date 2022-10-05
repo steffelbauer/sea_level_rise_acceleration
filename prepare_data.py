@@ -31,12 +31,9 @@ def combine_series(present: pd.DataFrame, past: pd.DataFrame, correction: bool=F
         Union[pd.DataFrame, pd.Series]: comnined dataframe 
     """
     inter = present.index.intersection(past.index)
-    print(inter)
     
     if correction:
         delta = (present[inter].mean() - past[inter].mean())
-
-        print(past[inter].mean(), present[inter].mean(), delta)
         present = present - delta
 
     result = pd.concat([past[:inter[0]], present[inter[1]:]])
