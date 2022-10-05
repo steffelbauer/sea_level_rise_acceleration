@@ -111,7 +111,7 @@ if __name__ == '__main__':
 
         # generate dataframe for single station containing sea-level measurement, pressure and wind and save to csv and pickle file
         data = pd.concat([s, p, u_square, v_square, u_stress, v_stress], axis = 1)
-        data.to_pickle(os.path.join('data', 'der', 'stations', f'{station}.pd'))
+        # data.to_pickle(os.path.join('data', 'der', 'stations', f'{station}.pd'))
         data.to_csv(os.path.join('data', 'der', 'stations', f'{station}.csv'))
 
         s.name = name  # station name is the name of the series
@@ -119,5 +119,5 @@ if __name__ == '__main__':
 
     # save dataframe with all measurements
     df = pd.concat(df, axis = 1)
-    df.to_pickle(os.path.join('data', 'der', 'stations', 'all_stations_psmsl.pd'))
+    # df.to_pickle(os.path.join('data', 'der', 'stations', 'all_stations_psmsl.pd'))
     df.to_csv(os.path.join('data', 'der', 'stations', 'all_stations_psmsl.csv'))
